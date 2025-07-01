@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UpDownShop_ Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/admin.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background: #f8f9fa; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      min-height: 56px;
+      flex-wrap: wrap;
+    }
+    .topbar .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: #222;
+      flex: 1 1 100px;
+    }
+    .topbar .nav-icons {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      flex: 1 1 200px;
+      justify-content: center;
+    }
+    .topbar .nav-link {
+      color: #222;
+      font-weight: 500;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+    .topbar .nav-link:hover { color: #007bff; }
+    .topbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #444;
+      font-weight: 500;
+      flex: 1 1 180px;
+      justify-content: flex-end;
+    }
+    .logout-btn {
+      margin-left: 1rem;
+      border-radius: 20px;
+      padding: 0.3rem 1.1rem;
+      font-size: 1rem;
+      border: 1.5px solid #222;
+      background: #fff;
+      color: #222;
+      transition: background 0.2s, color 0.2s;
+    }
+    .logout-btn:hover {
+      background: #222;
+      color: #fff;
+    }
+    .dashboard-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin: 2rem auto 0 auto;
+      max-width: 900px;
+      padding: 2rem 2.5rem 2.5rem 2.5rem;
+    }
+    .dashboard-header {
+      background: #222;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 6px 6px 0 0;
+      padding: 0.6rem 0;
+      font-size: 1.15rem;
+      margin-bottom: 1.2rem;
+    }
+    .quote-banner {
+      background: #222;
+      color: #fff;
+      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      flex-wrap: wrap;
+    }
+    .quote-banner .bi { font-size: 1.5rem; }
+    .dashboard-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .dashboard-actions .btn {
+      border-radius: 24px;
+      font-size: 1.1rem;
+      padding: 0.7rem 1.6rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1.5px solid #222;
+      background: #fff;
+      color: #222;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dashboard-actions .btn:hover {
+      background: #222;
+      color: #fff;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      text-align: center;
+      color: #222;
+    }
+    @media (max-width: 900px) {
+      .dashboard-card {
+        max-width: 98vw;
+        padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+      }
+    }
+    @media (max-width: 700px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.5rem 0.5rem;
+      }
+      .topbar .logo, .topbar .nav-icons, .topbar .user-info {
+        justify-content: center;
+        margin-bottom: 0.3rem;
+      }
+      .dashboard-actions {
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .quote-banner {
+        flex-direction: column;
+        gap: 0.7rem;
+        text-align: center;
+      }
+    }
+    @media (max-width: 500px) {
+      .dashboard-card {
+        padding: 0.7rem 0.1rem 1rem 0.1rem;
+      }
+      .dashboard-header {
+        font-size: 1rem;
+      }
+      .section-title {
+        font-size: 1.05rem;
+      }
+    }
+    .dashboard-container { max-width: 1100px; margin: 40px auto; }
+    .chart-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 24px; margin-bottom: 32px; }
+    .chart-title { font-weight: 500; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">UpDownShop</div>
+    <div class="user-info dropdown">
+      <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: #444; font-weight: 500;">
+        <i class="bi bi-person-circle"></i> Admin User <i class="bi bi-caret-down-fill"></i>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+        <li><a class="dropdown-item" href="#" id="viewProfileBtn"><i class="bi bi-person"></i> View Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="dashboard-card">
+    <div class="dashboard-header">Dashboard</div>
+    <div class="quote-banner">
+      <i class="bi bi-chevron-left"></i>
+      <span>Explore, order, and experience the latest gadgets with UpDownShop.<br><span style="font-size:0.95em;">— Your one-stop shop for tech enthusiasts</span></span>
+      <i class="bi bi-chevron-right"></i>
+    </div>
+    <div class="text-center mb-4" style="font-weight:600; font-size:1.15rem;">You are logged in!</div>
+    <div class="dashboard-actions">
+      <button class="btn"><i class="bi bi-person-circle"></i> View Profile</button>
+      <button class="btn btn-primary mb-4" id="manageUsersBtn"><i class="bi bi-people"></i> Manage Users</button>
+      <button class="btn btn-primary mb-4" id="manageProductsBtn"><i class="bi bi-box-seam"></i> Manage Products</button>
+      <button class="btn"><i class="bi bi-bag"></i> Manage Orders</button>
+      <button class="btn"><i class="bi bi-star"></i> Manage Reviews</button>
+    </div>
+    <div class="section-title">Sales Analytics</div>
+    <div class="dashboard-container">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="chart-card">
+            <div class="chart-title">Yearly Sales</div>
+            <canvas id="yearlySalesChart"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="chart-card">
+            <div class="chart-title">Monthly Sales</div>
+            <canvas id="monthlySalesChart"></canvas>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="chart-card">
+            <div class="chart-title d-flex align-items-center justify-content-between">
+              <span>Sales Bar Chart (Date Range)</span>
+              <input type="date" id="startDate" class="form-control form-control-sm w-auto mx-2"> to
+              <input type="date" id="endDate" class="form-control form-control-sm w-auto mx-2">
+              <button class="btn btn-sm btn-primary ms-2" id="filterSalesBtn">Filter</button>
+            </div>
+            <canvas id="salesBarChart"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="chart-card">
+            <div class="chart-title">Sales by Product (Pie Chart)</div>
+            <canvas id="salesPieChart"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="chart-card">
+            <div class="chart-title">Daily Sales (Line Chart)</div>
+            <canvas id="dailySalesLineChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Product Management Modal -->
+  <div class="modal fade" id="productsModal" tabindex="-1" aria-labelledby="productsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productsModalLabel">Manage Products</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <button class="btn btn-success mb-3" id="addProductBtn"><i class="bi bi-plus-circle"></i> Add Product</button>
+          <table id="productsTable" class="table table-bordered table-hover w-100">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Add/Edit Product Modal -->
+  <div class="modal fade" id="productFormModal" tabindex="-1" aria-labelledby="productFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productFormModalLabel">Add/Edit Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="productForm" enctype="multipart/form-data">
+            <input type="hidden" name="id" id="productId">
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" name="name" id="productName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Category</label>
+              <select class="form-select" name="category_id" id="productCategory" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" name="price" id="productPrice" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" name="stock" id="productStock" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Image</label>
+              <input type="file" class="form-control" name="image" id="productImage">
+              <img id="productImagePreview" src="#" alt="Preview" style="max-width:100px;display:none;margin-top:8px;"/>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- User Management Modal -->
+  <div class="modal fade" id="usersModal" tabindex="-1" aria-labelledby="usersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="usersModalLabel">Manage Users</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table id="usersTable" class="table table-bordered table-hover w-100">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="js/admin-products.js"></script>
+  <script src="js/admin-users.js"></script>
+  <script>
+    function getToken() {
+      return localStorage.getItem('token');
+    }
+
+    let yearlySalesChart, monthlySalesChart, salesBarChart, salesPieChart, dailySalesLineChart;
+
+    // Yearly Sales Chart
+    function loadYearlySalesChart() {
+      fetch('http://localhost:4000/api/v1/analytics/yearly-sales', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      })
+        .then(res => res.json())
+        .then(res => {
+          const labels = res.data.map(row => row.year);
+          const data = res.data.map(row => row.sales);
+          if (yearlySalesChart) yearlySalesChart.destroy();
+          yearlySalesChart = new Chart(document.getElementById('yearlySalesChart'), {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Yearly Sales',
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+              }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        });
+    }
+
+    // Monthly Sales Chart
+    function loadMonthlySalesChart() {
+      fetch('http://localhost:4000/api/v1/analytics/monthly-sales', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      })
+        .then(res => res.json())
+        .then(res => {
+          const labels = res.data.map(row => row.month);
+          const data = res.data.map(row => row.sales);
+          if (monthlySalesChart) monthlySalesChart.destroy();
+          monthlySalesChart = new Chart(document.getElementById('monthlySalesChart'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Monthly Sales',
+                data: data,
+                borderColor: 'rgba(255, 99, 132, 0.8)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        });
+    }
+
+    // Sales Bar Chart with Date Range
+    function loadSalesBarChart(start, end) {
+      if (!start || !end) return;
+      fetch(`http://localhost:4000/api/v1/analytics/sales-bar?start=${start}&end=${end}`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      })
+        .then(res => res.json())
+        .then(res => {
+          const labels = res.data.map(row => row.order_date.split('T')[0]);
+          const data = res.data.map(row => row.total);
+          if (salesBarChart) salesBarChart.destroy();
+          salesBarChart = new Chart(document.getElementById('salesBarChart'), {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Sales',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)'
+              }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        });
+    }
+
+    // Pie Chart: Sales by Product
+    function loadSalesPieChart() {
+      fetch('http://localhost:4000/api/v1/analytics/sales-pie', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      })
+        .then(res => res.json())
+        .then(res => {
+          const labels = res.data.map(row => row.product);
+          const data = res.data.map(row => row.sales);
+          if (salesPieChart) salesPieChart.destroy();
+          salesPieChart = new Chart(document.getElementById('salesPieChart'), {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{
+                data: data,
+                backgroundColor: [
+                  'rgba(255, 205, 86, 0.8)',
+                  'rgba(75, 192, 192, 0.8)',
+                  'rgba(255, 99, 132, 0.8)',
+                  'rgba(54, 162, 235, 0.8)',
+                  'rgba(153, 102, 255, 0.8)',
+                  'rgba(255, 159, 64, 0.8)'
+                ]
+              }]
+            },
+            options: { responsive: true }
+          });
+        });
+    }
+
+    // Daily Sales Line Chart
+    function loadDailySalesLineChart() {
+      fetch('http://localhost:4000/api/v1/analytics/daily-sales-line', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      })
+        .then(res => res.json())
+        .then(res => {
+          const labels = res.data.map(row => row.day);
+          const data = res.data.map(row => row.sales);
+          if (dailySalesLineChart) dailySalesLineChart.destroy();
+          dailySalesLineChart = new Chart(document.getElementById('dailySalesLineChart'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Daily Sales',
+                data: data,
+                borderColor: 'rgba(54, 162, 235, 0.8)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        });
+    }
+
+    // Date range filter for sales bar chart
+    $('#filterSalesBtn').on('click', function() {
+      const start = $('#startDate').val();
+      const end = $('#endDate').val();
+      loadSalesBarChart(start, end);
+    });
+
+    // Initial load
+    loadYearlySalesChart();
+    loadMonthlySalesChart();
+    loadSalesPieChart();
+    loadDailySalesLineChart();
+    // Optionally, set default date range for bar chart (e.g., this month)
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
+    const lastDay = new Date(today.getFullYear(), today.getMonth()+1, 0).toISOString().slice(0,10);
+    $('#startDate').val(firstDay);
+    $('#endDate').val(lastDay);
+    loadSalesBarChart(firstDay, lastDay);
+  </script>
+</body>
+</html> 

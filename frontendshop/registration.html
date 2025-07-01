@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UpDownShop - Register</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/registration.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="regName" placeholder="Name" required><br><br>
+    <input type="email" id="regEmail" placeholder="Email" required><br><br>
+    <input type="password" id="regPassword" placeholder="Password" required><br><br>
+    <button type="submit">Register</button>
+  </form>
+  <div id="registerResult"></div>
+  <p>Already have an account? <a href="index.html">Login here</a></p>
+</body>
+</html> 
