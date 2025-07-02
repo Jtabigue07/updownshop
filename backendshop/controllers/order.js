@@ -38,8 +38,28 @@ exports.createOrder = (req, res) => {
                         return res.status(500).json({ error: err2 });
                     }
                     console.log('Orderline insert success');
-                    res.json({ success: true, orderId });
-                        }
+                    // Decrease stock for each product
+                    const updateStockQueries = cart.map(item => {
+                      return new Promise((resolve, reject) => {
+                        connection.query(
+                          'UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?',
+                          [item.qty, item.product_id, item.qty],
+                          (err, result) => {
+                            if (err) return reject(err);
+                            if (result.affectedRows === 0) return reject(new Error('Not enough stock for product ID ' + item.product_id));
+                            resolve();
+                          }
+                        );
+                      });
+                    });
+                    Promise.all(updateStockQueries)
+                      .then(() => {
+                        res.json({ success: true, orderId });
+                      })
+                      .catch(err => {
+                        res.status(400).json({ error: err.message || err });
+                      });
+                }
             );
         }
     );

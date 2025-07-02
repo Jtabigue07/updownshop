@@ -32,11 +32,11 @@ $(function() {
             <div class="card-body d-flex flex-column">
               <h5 class="product-title">${product.name}</h5>
               <div class="text-secondary mb-1" style="font-size:0.98em;"><i class="bi bi-tags"></i> ${product.category || ''}</div>
+              <span class="badge bg-secondary mb-2 d-block">Stock: ${product.stock}</span>
               <p class="card-text text-muted mb-2" style="min-height:40px;">${product.specs || ''}</p>
               <div class="mt-auto">
                 <span class="product-price mb-2 d-block">$${product.price}</span>
                 <button class="btn btn-primary addToCartBtn" data-id="${product.id}"><i class="bi bi-cart-plus"></i> Add to Cart</button>
-                ${user.role === 'admin' ? `<button class="btn btn-warning ms-2 editProductBtn" data-id="${product.id}">Edit</button><button class="btn btn-danger ms-2 deleteProductBtn" data-id="${product.id}">Delete</button>` : ''}
               </div>
             </div>
           </div>
@@ -59,6 +59,32 @@ $(function() {
     }
     localStorage.setItem('cart', JSON.stringify(cart));
     alert('Added to cart!');
+  });
+
+  // Place Order (example logic, adjust as needed)
+  $(document).on('submit', '#checkoutForm', function(e) {
+    e.preventDefault();
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (!cart.length) return alert('Your cart is empty!');
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    $.ajax({
+      url: 'http://localhost:4000/api/v1/create-order',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ cart, total }),
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
+      success: function(res) {
+        alert('Order placed successfully!');
+        localStorage.removeItem('cart');
+        // Reload products to show updated stock
+        $.get('http://localhost:4000/api/v1/products', function(products) {
+          renderProductGrid(products);
+        });
+      },
+      error: function(xhr) {
+        alert('Order failed: ' + (xhr.responseJSON?.error || xhr.statusText));
+      }
+    });
   });
 
   // TODO: Add edit/delete product logic for admin
