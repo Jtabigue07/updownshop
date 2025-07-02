@@ -1,86 +1,69 @@
 $(function() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.role === 'admin') {
-    window.location.href = 'admin.html';
-    return;
+  // Require authentication - redirect to login if not authenticated
+  if (!Auth.requireUser()) {
+    return; // Stop execution if not authenticated
   }
-  // Logout
-  $('#logoutBtn').on('click', function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-  });
+
+  const user = Auth.getUser();
+
+  // Update navigation
+  Auth.updateNavigation();
 
   function renderProfileForm(profile = {}) {
-    // Always use the static image element
-    const imgElem = document.getElementById('staticProfileImg');
-    if (profile.image_path) {
-      imgElem.src = `http://localhost:4000/${profile.image_path}`;
-      imgElem.style.display = 'inline-block';
-    } else {
-      imgElem.src = 'https://via.placeholder.com/140';
-      imgElem.style.display = 'inline-block';
-    }
-
-    // Load draft from localStorage if exists
-    let draft = {};
-    try {
-      draft = JSON.parse(localStorage.getItem('profileDraft') || '{}');
-    } catch (e) {}
-
-    // Use draft values if present, else profile values
-    function getField(name) {
-      return draft[name] !== undefined ? draft[name] : (profile[name] || '');
-    }
-
-    let html = `<h2>Your Profile</h2>
-      <form id="updateProfileForm" enctype="multipart/form-data" class="mb-4">
-        <div class="row g-3">
-          <div class="col-md-2">
+    let html = `<div class="card mx-auto" style="max-width:520px;">
+      <div class="card-body">
+        <div class="profile-title mb-4"><i class="bi bi-person-circle"></i> Your Profile</div>
+        <form id="updateProfileForm" enctype="multipart/form-data">
+          <div class="mb-3 text-center">
+            <img id="staticProfileImg" src="${profile.image_path ? `http://localhost:4000/${profile.image_path}` : 'https://via.placeholder.com/140'}" alt="Profile Photo" class="rounded-circle border border-3 border-primary shadow" style="width:120px;height:120px;object-fit:cover;">
+          </div>
+          <input type="hidden" name="existingImagePath" value="${profile.image_path || ''}">
+          <div class="mb-3">
             <label class="form-label">Title</label>
             <select class="form-select" name="title">
-              <option${getField('title') === 'Mr' ? ' selected' : ''}>Mr</option>
-              <option${getField('title') === 'Mrs' ? ' selected' : ''}>Mrs</option>
-              <option${getField('title') === 'Ms' ? ' selected' : ''}>Ms</option>
-              <option${getField('title') === 'Dr' ? ' selected' : ''}>Dr</option>
+              <option${profile.title === 'Mr' ? ' selected' : ''}>Mr</option>
+              <option${profile.title === 'Mrs' ? ' selected' : ''}>Mrs</option>
+              <option${profile.title === 'Ms' ? ' selected' : ''}>Ms</option>
+              <option${profile.title === 'Dr' ? ' selected' : ''}>Dr</option>
             </select>
           </div>
-          <div class="col-md-5">
+          <div class="mb-3">
             <label class="form-label">First Name</label>
-            <input type="text" class="form-control" name="fname" value="${getField('fname')}" required>
+            <input type="text" class="form-control" name="fname" value="${profile.fname || ''}" required>
           </div>
-          <div class="col-md-5">
+          <div class="mb-3">
             <label class="form-label">Last Name</label>
-            <input type="text" class="form-control" name="lname" value="${getField('lname')}" required>
+            <input type="text" class="form-control" name="lname" value="${profile.lname || ''}" required>
           </div>
-          <div class="col-md-12">
+          <div class="mb-3">
             <label class="form-label">Address</label>
-            <input type="text" class="form-control" name="addressline" value="${getField('addressline')}">
+            <input type="text" class="form-control" name="addressline" value="${profile.addressline || ''}">
           </div>
-          <div class="col-md-4">
+          <div class="mb-3">
             <label class="form-label">Town</label>
-            <input type="text" class="form-control" name="town" value="${getField('town')}">
+            <input type="text" class="form-control" name="town" value="${profile.town || ''}">
           </div>
-          <div class="col-md-4">
+          <div class="mb-3">
             <label class="form-label">Zip Code</label>
-            <input type="text" class="form-control" name="zipcode" value="${getField('zipcode')}">
+            <input type="text" class="form-control" name="zipcode" value="${profile.zipcode || ''}">
           </div>
-          <div class="col-md-4">
+          <div class="mb-3">
             <label class="form-label">Phone</label>
-            <input type="text" class="form-control" name="phone" value="${getField('phone')}">
+            <input type="text" class="form-control" name="phone" value="${profile.phone || ''}">
           </div>
-          <div class="col-md-12">
+          <div class="mb-3">
             <label class="form-label">Profile Image</label>
             <input type="file" class="form-control" name="image">
           </div>
-        </div>
-        <input type="hidden" name="userId" value="${user.id}">
-        <button type="submit" class="btn btn-primary mt-4">Update Profile</button>
-      </form>
-      <div id="profileResult"></div>
-      <hr>
-      <p><b>Email:</b> ${profile.email || user.email}</p>
-      <p><b>Role:</b> ${profile.role || user.role}</p>`;
+          <input type="hidden" name="userId" value="${user.id}">
+          <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+        </form>
+        <div id="profileResult" class="mt-3"></div>
+        <hr>
+        <p><b>Email:</b> ${profile.email || user.email}</p>
+        <p><b>Role:</b> ${profile.role || user.role}</p>
+      </div>
+    </div>`;
     $('#profileContent').html(html);
 
     // Save form data to localStorage on change
@@ -96,16 +79,29 @@ $(function() {
     $('#updateProfileForm').on('submit', function(e) {
       e.preventDefault();
       const formData = new FormData(this);
+      // If no new image is selected, ensure existingImagePath is sent
+      if (!formData.get('image') || formData.get('image').name === "") {
+        formData.set('existingImagePath', $('input[name="existingImagePath"]').val());
+      }
       $.ajax({
         url: 'http://localhost:4000/api/v1/update-profile',
         type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+        headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
         success: function(res) {
-          $('#profileResult').html('<div class="alert alert-success">Profile updated! Please reload to see changes.</div>');
+          $('#profileResult').html('<div class="alert alert-success">Profile updated!</div>');
           localStorage.removeItem('profileDraft');
+          // Re-fetch profile data and re-render form
+          $.ajax({
+            url: `http://localhost:4000/api/v1/profile/${user.id}`,
+            type: 'GET',
+            headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
+            success: function(res) {
+              renderProfileForm(res.profile || {});
+            }
+          });
         },
         error: function(xhr) {
           $('#profileResult').html('<div class="alert alert-danger">Update failed. ' + (xhr.responseJSON?.error || '') + '</div>');
@@ -118,7 +114,7 @@ $(function() {
   $.ajax({
     url: `http://localhost:4000/api/v1/profile/${user.id}`,
     type: 'GET',
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
     success: function(res) {
       renderProfileForm(res.profile || {});
     },

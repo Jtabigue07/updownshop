@@ -49,4 +49,17 @@ CREATE TABLE IF NOT EXISTS orderline (
     price DECIMAL(10,2),
     FOREIGN KEY (order_id) REFERENCES orderinfo(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- Reviews table
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 ); 

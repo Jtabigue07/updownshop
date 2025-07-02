@@ -57,14 +57,14 @@ exports.itemsChart = (req, res) => {
 
 };
 
-// Bar Chart: Sales by Category (sum of quantity per category for successful orders)
+// Bar Chart: Sales by Category (sum of quantity per category for delivered orders)
 exports.salesByCategory = (req, res) => {
   const sql = `SELECT cat.name AS category, SUM(ol.quantity) AS sales
     FROM orderinfo o
     JOIN orderline ol ON o.id = ol.order_id
     JOIN products p ON ol.product_id = p.id
     JOIN categories cat ON p.category_id = cat.id
-    WHERE o.status = 'success'
+    WHERE o.status = 'Delivered'
     GROUP BY cat.name`;
   connection.execute(sql, [], (err, results) => {
     if (err) return res.status(500).json({ error: err });
@@ -72,11 +72,11 @@ exports.salesByCategory = (req, res) => {
   });
 };
 
-// Line Chart: Orders Over Time (count of successful orders per month)
+// Line Chart: Orders Over Time (count of delivered orders per month)
 exports.ordersOverTime = (req, res) => {
   const sql = `SELECT DATE_FORMAT(o.order_date, '%Y-%m') AS month, COUNT(*) AS orders
     FROM orderinfo o
-    WHERE o.status = 'success'
+    WHERE o.status = 'Delivered'
     GROUP BY month
     ORDER BY month`;
   connection.execute(sql, [], (err, results) => {
@@ -98,7 +98,7 @@ exports.userRoles = (req, res) => {
 exports.yearlySales = (req, res) => {
   const sql = `SELECT YEAR(order_date) AS year, SUM(total) AS sales
     FROM orderinfo
-    WHERE status = 'success'
+    WHERE status = 'Delivered'
     GROUP BY year
     ORDER BY year`;
   connection.execute(sql, [], (err, results) => {
@@ -111,7 +111,7 @@ exports.yearlySales = (req, res) => {
 exports.monthlySales = (req, res) => {
   const sql = `SELECT DATE_FORMAT(order_date, '%Y-%m') AS month, SUM(total) AS sales
     FROM orderinfo
-    WHERE status = 'success'
+    WHERE status = 'Delivered'
     GROUP BY month
     ORDER BY month`;
   connection.execute(sql, [], (err, results) => {
@@ -122,8 +122,11 @@ exports.monthlySales = (req, res) => {
 
 // Sales Bar Chart by Date Range
 exports.salesBarByDateRange = (req, res) => {
-  const { start, end } = req.query;
-  const sql = `SELECT order_date, total FROM orderinfo WHERE status = 'success' AND order_date BETWEEN ? AND ? ORDER BY order_date`;
+  let { start, end } = req.query;
+  // If start or end is missing, use a wide range
+  if (!start) start = '1970-01-01';
+  if (!end) end = '2100-12-31';
+  const sql = `SELECT order_date, total FROM orderinfo WHERE status = 'Delivered' AND order_date BETWEEN ? AND ? ORDER BY order_date`;
   connection.execute(sql, [start, end], (err, results) => {
     if (err) return res.status(500).json({ error: err });
     res.json({ data: results });
@@ -136,7 +139,7 @@ exports.salesPieByProduct = (req, res) => {
     FROM orderinfo o
     JOIN orderline ol ON o.id = ol.order_id
     JOIN products p ON ol.product_id = p.id
-    WHERE o.status = 'success'
+    WHERE o.status = 'Delivered'
     GROUP BY p.id, p.name`;
   connection.execute(sql, [], (err, results) => {
     if (err) return res.status(500).json({ error: err });
@@ -148,7 +151,7 @@ exports.salesPieByProduct = (req, res) => {
 exports.dailySalesLine = (req, res) => {
   const sql = `SELECT DATE(order_date) AS day, SUM(total) AS sales
     FROM orderinfo
-    WHERE status = 'success'
+    WHERE status = 'Delivered'
     GROUP BY day
     ORDER BY day`;
   connection.execute(sql, [], (err, results) => {

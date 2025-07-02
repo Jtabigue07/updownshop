@@ -1,15 +1,11 @@
 $(function() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.role === 'admin') {
-    window.location.href = 'admin.html';
-    return;
+  // Require authentication - redirect to login if not authenticated
+  if (!Auth.requireUser()) {
+    return; // Stop execution if not authenticated
   }
-  // Logout
-  $('#logoutBtn').on('click', function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-  });
+
+  // Update navigation
+  Auth.updateNavigation();
 
   // Load cart
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -87,7 +83,7 @@ $(function() {
         url: 'http://localhost:4000/api/v1/orders',
         method: 'POST',
         contentType: 'application/json',
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+        headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
         data: JSON.stringify({ cart: orderCart, total }),
         success: function(res) {
           localStorage.removeItem('cart');

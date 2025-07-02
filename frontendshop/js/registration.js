@@ -1,4 +1,9 @@
 $(function() {
+  // Auto-redirect if already logged in
+  if (Auth.redirectIfAuthenticated()) {
+    return; // Prevent further execution
+  }
+
   // Registration
   $('#registerForm').on('submit', function(e) {
     e.preventDefault();
@@ -14,7 +19,7 @@ $(function() {
         role: $('#regRole').val()
       }),
       success: function(res) {
-        $('#registerResult').html('<p style="color:green;">Registration successful! You can now <a href="index.html">log in</a>.</p>');
+        $('#registerResult').html('<p style="color:green;">Registration successful! You can now <a href="login.html">log in</a>.</p>');
       },
       error: function(xhr) {
         let msg = 'Registration failed';

@@ -1,9 +1,14 @@
 $(function() {
+  // Require admin authentication - redirect to login if not authenticated or not admin
+  if (!Auth.requireAdmin()) {
+    return; // Stop execution if not authenticated or not admin
+  }
+
   // Fetch all users
   $.ajax({
     url: 'http://localhost:4000/api/v1/users/all',
     type: 'GET',
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+    headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
     success: function(res) {
       const users = res.users || [];
       let rows = '';

@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
         if (!match) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-
+       
         delete user.password;
 
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -64,10 +64,10 @@ const loginUser = async (req, res) => {
                 console.log(err2);
                 return res.status(500).json({ error: 'Error saving token', details: err2 });
             }
-            return res.status(200).json({
-                success: "welcome back",
+        return res.status(200).json({
+            success: "welcome back",
                 user,
-                token
+            token
             });
         });
     });
@@ -85,6 +85,8 @@ const updateUser = (req, res) => {
     let image = null;
     if (req.file) {
         image = 'images/' + req.file.filename;
+    } else if (req.body.existingImagePath) {
+        image = req.body.existingImagePath;
     }
     //     INSERT INTO users(user_id, username, email)
     //   VALUES(1, 'john_doe', 'john@example.com')
@@ -114,10 +116,26 @@ const updateUser = (req, res) => {
                 });
             }
 
-            return res.status(200).json({
-                success: true,
-                result
-            })
+            // Also update the users table (name only) for admin profile
+            const fullName = fname && lname ? fname + ' ' + lname : null;
+            if (fullName) {
+                const updateUserSql = `UPDATE users SET name = ? WHERE id = ?`;
+                connection.execute(updateUserSql, [fullName, userId], (userErr) => {
+                    if (userErr) {
+                        console.log(userErr);
+                        // Don't fail the whole request if this fails
+                    }
+                    return res.status(200).json({
+                        success: true,
+                        result
+                    });
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    result
+                });
+            }
         });
     } catch (error) {
         console.log(error)

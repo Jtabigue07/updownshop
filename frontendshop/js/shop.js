@@ -1,14 +1,18 @@
 $(function() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  if (user.role === 'admin') {
-    $('#navAdmin').show();
+  // Require authentication - redirect to login if not authenticated
+  if (!Auth.requireAuth()) {
+    return; // Stop execution if not authenticated
   }
-  // Logout
-  $('#logoutBtn').on('click', function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-  });
+
+  const user = Auth.getUser();
+  
+  // Show admin controls if user is admin
+  if (user.role === 'admin') {
+    $('.admin-only').show();
+  }
+
+  // Update navigation
+  Auth.updateNavigation();
 
   // Load products
   $.get('http://localhost:4000/api/v1/products', function(products) {

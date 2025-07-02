@@ -1,4 +1,9 @@
 $(function() {
+  // Require admin authentication - redirect to login if not authenticated or not admin
+  if (!Auth.requireAdmin()) {
+    return; // Stop execution if not authenticated or not admin
+  }
+
   let productsTable;
   let categories = [];
 
@@ -85,7 +90,7 @@ $(function() {
       data: formData,
       processData: false,
       contentType: false,
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
       success: function() {
         $('#productFormModal').modal('hide');
         loadProducts();
@@ -103,7 +108,7 @@ $(function() {
     $.ajax({
       url: `http://localhost:4000/api/v1/products/${id}`,
       type: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
       success: function() {
         loadProducts();
       },

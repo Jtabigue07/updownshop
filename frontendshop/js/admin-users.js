@@ -1,4 +1,9 @@
 $(function() {
+  // Require admin authentication - redirect to login if not authenticated or not admin
+  if (!Auth.requireAdmin()) {
+    return; // Stop execution if not authenticated or not admin
+  }
+
   let usersTable;
 
   // Open modal on button click
@@ -9,7 +14,7 @@ $(function() {
 
   // Load users into DataTable
   function loadUsers() {
-    const token = localStorage.getItem('token');
+    const token = Auth.getToken();
     console.log('JWT token:', token);
     if (!token) {
       alert('You are not logged in or your session has expired. Please log in as admin.');
@@ -55,7 +60,7 @@ $(function() {
       type: 'PUT',
       contentType: 'application/json',
       data: JSON.stringify({ role }),
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
       success: function() { loadUsers(); },
       error: function(xhr) { alert('Failed to update role.'); }
     });
@@ -70,7 +75,7 @@ $(function() {
       type: 'PUT',
       contentType: 'application/json',
       data: JSON.stringify({ status }),
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+      headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
       success: function() { loadUsers(); },
       error: function(xhr) { alert('Failed to update status.'); }
     });

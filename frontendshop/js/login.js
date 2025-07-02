@@ -1,13 +1,6 @@
 $(function() {
   // Auto-redirect if already logged in
-  const savedUser = localStorage.getItem('user');
-  if (savedUser) {
-    const user = JSON.parse(savedUser);
-    if (user.role === 'admin') {
-      window.location.href = 'admin.html';
-    } else {
-      window.location.href = 'home.html';
-    }
+  if (Auth.redirectIfAuthenticated()) {
     return; // Prevent further execution
   }
 
@@ -30,7 +23,7 @@ $(function() {
           if (res.user.role === 'admin') {
             window.location.href = 'admin.html';
           } else {
-            window.location.href = 'home.html';
+          window.location.href = 'home.html';
           }
         } else {
           $('#result').html('<p class="error">Login succeeded, but no role found.</p>');
