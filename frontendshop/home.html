@@ -9,37 +9,529 @@
   <script src="js/home.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
-    body { background: #f8f9fa; }
-    .navbar-brand { font-weight: bold; letter-spacing: 1px; }
-    .card { box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-radius: 12px; transition: transform 0.2s; }
-    .card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
-    .btn-primary, .btn-success, .btn-warning, .btn-danger { border-radius: 20px; padding-left: 24px; padding-right: 24px; }
-    .form-control, .btn { border-radius: 20px; }
-    .table th, .table td { vertical-align: middle; }
-    .alert { border-radius: 20px; }
-    .product-title { font-size: 1.2rem; font-weight: 600; color: #333; }
-    .product-price { color: #007bff; font-size: 1.1rem; font-weight: bold; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .particle:nth-child(1) { top: 20%; left: 10%; width: 20px; height: 20px; animation-delay: 0s; }
+    .particle:nth-child(2) { top: 60%; left: 20%; width: 15px; height: 15px; animation-delay: 2s; }
+    .particle:nth-child(3) { top: 40%; left: 70%; width: 25px; height: 25px; animation-delay: 4s; }
+    .particle:nth-child(4) { top: 80%; left: 80%; width: 18px; height: 18px; animation-delay: 6s; }
+    .particle:nth-child(5) { top: 30%; left: 50%; width: 12px; height: 12px; animation-delay: 1s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    /* Navbar enhancements */
+    .navbar {
+      background: rgba(255, 255, 255, 0.1) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand { 
+      font-weight: 800; 
+      letter-spacing: 2px; 
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.2); }
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      margin: 0 10px;
+    }
+
+    .nav-link:hover {
+      color: #4ecdc4 !important;
+      transform: translateY(-2px);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      z-index: 2;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .hero-title {
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ffffff, #4ecdc4, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    /* Enhanced buttons */
+    .btn-primary, .btn-success, .btn-warning, .btn-danger { 
+      border-radius: 50px; 
+      padding: 15px 30px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      box-shadow: 0 8px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-outline-light {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      padding: 8px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-light:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Cards enhancement */
+    .card { 
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1); 
+      border-radius: 20px; 
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .card:hover { 
+      transform: translateY(-10px) scale(1.03); 
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    /* Featured products grid */
+    .featured-products {
+      margin-top: 4rem;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+      background: linear-gradient(45deg, #ffffff, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: white;
+    }
+
+    .product-title { 
+      font-size: 1.4rem; 
+      font-weight: 700; 
+      color: #ffffff;
+      margin-bottom: 1rem;
+    }
+
+    .product-price { 
+      color: #4ecdc4; 
+      font-size: 1.3rem; 
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .product-description {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Stats section */
+    .stats-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 3rem;
+      margin: 4rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Footer enhancement */
+    footer {
+      background: rgba(0, 0, 0, 0.3) !important;
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      padding: 2rem 0;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-primary {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <!-- Animated background particles -->
+  <div class="bg-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container-fluid">
       <a class="navbar-brand" href="home.html">UpDownShop</a>
       <div>
-        <a class="nav-link d-inline text-white" href="shop.html" id="navShop">Shop</a>
-        <a class="nav-link d-inline text-white" href="cart.html" id="navCart">Cart</a>
-        <a class="nav-link d-inline text-white" href="profile.html" id="navProfile">Profile</a>
-        <a class="nav-link d-inline text-white" href="leave-review.html" id="navLeaveReview"><i class="bi bi-star"></i> Leave a Review</a>
+        <a class="nav-link d-inline text-white" href="shop.html" id="navShop"><i class="bi bi-shop"></i> Shop</a>
+        <a class="nav-link d-inline text-white" href="cart.html" id="navCart"><i class="bi bi-cart3"></i> Cart</a>
+        <a class="nav-link d-inline text-white" href="profile.html" id="navProfile"><i class="bi bi-person"></i> Profile</a>
+        <a class="nav-link d-inline text-white" href="leave-review.html" id="navLeaveReview"><i class="bi bi-star"></i> Reviews</a>
         <button class="btn btn-outline-light btn-sm ms-2" id="logoutBtn">Logout</button>
       </div>
     </div>
   </nav>
+
   <div class="container" id="mainContent">
-    <h2>Welcome to UpDownShop!</h2>
-    <p>Browse our latest gadgets and deals!</p>
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Welcome to UpDownShop!</h1>
+        <p class="hero-subtitle">Discover amazing gadgets and unbeatable deals that will transform your lifestyle</p>
+        <div class="hero-buttons">
+          <a href="shop.html" class="btn btn-primary btn-lg">
+            <i class="bi bi-shop me-2"></i>Start Shopping
+          </a>
+          <a href="#featured" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-arrow-down me-2"></i>Explore Deals
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+      <div class="row">
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">10K+</div>
+          <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Products</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">99.9%</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+        <div class="col-md-3 stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Support</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Products Section -->
+    <div class="featured-products" id="featured">
+      <h2 class="section-title">Featured Products</h2>
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="product-icon">
+            <i class="bi bi-laptop"></i>
+          </div>
+          <h3 class="product-title">Latest Laptops</h3>
+          <div class="product-price">From $799</div>
+          <p class="product-description">Powerful laptops with cutting-edge processors and stunning displays for work and play.</p>
+          <a href="shop.html" class="btn btn-primary">Shop Now</a>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">
+            <i class="bi bi-phone"></i>
+          </div>
+          <h3 class="product-title">Smart Phones</h3>
+          <div class="product-price">From $299</div>
+          <p class="product-description">Stay connected with our premium selection of smartphones featuring advanced cameras and long-lasting batteries.</p>
+          <a href="shop.html" class="btn btn-primary">Shop Now</a>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">
+            <i class="bi bi-headphones"></i>
+          </div>
+          <h3 class="product-title">Audio Gear</h3>
+          <div class="product-price">From $49</div>
+          <p class="product-description">Immerse yourself in crystal-clear sound with our premium headphones and speakers.</p>
+          <a href="shop.html" class="btn btn-primary">Shop Now</a>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">
+            <i class="bi bi-smartwatch"></i>
+          </div>
+          <h3 class="product-title">Wearables</h3>
+          <div class="product-price">From $199</div>
+          <p class="product-description">Track your fitness and stay connected with our stylish smartwatches and fitness trackers.</p>
+          <a href="shop.html" class="btn btn-primary">Shop Now</a>
+        </div>
+      </div>
+    </div>
   </div>
+
   <footer class="bg-dark text-white text-center py-3 mt-5">
-    &copy; 2024 UpDownShop. All rights reserved.
+    <div class="container">
+      <p>&copy; 2024 UpDownShop. All rights reserved.</p>
+      <p class="mb-0">Transforming your digital lifestyle, one product at a time.</p>
+    </div>
   </footer>
+
+  <script>
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // Add navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.style.background = 'rgba(0, 0, 0, 0.9)';
+        navbar.style.backdropFilter = 'blur(20px)';
+      } else {
+        navbar.style.background = 'rgba(255, 255, 255, 0.1)';
+        navbar.style.backdropFilter = 'blur(20px)';
+      }
+    });
+
+    // Animate stats on scroll
+    function animateStats() {
+      const stats = document.querySelectorAll('.stat-number');
+      stats.forEach(stat => {
+        const target = parseInt(stat.textContent);
+        const increment = target / 100;
+        let current = 0;
+        
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            stat.textContent = stat.textContent.includes('K') ? '10K+' : 
+                               stat.textContent.includes('%') ? '99.9%' : 
+                               stat.textContent.includes('/') ? '24/7' : '500+';
+            clearInterval(timer);
+          }
+        }, 20);
+      });
+    }
+
+    // Trigger stats animation when scrolled into view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateStats();
+          observer.unobserve(entry.target);
+        }
+      });
+    });
+
+    observer.observe(document.querySelector('.stats-section'));
+  </script>
 </body>
-</html> 
+</html>

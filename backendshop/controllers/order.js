@@ -1,5 +1,4 @@
 const connection = require('../config/database');
-const sendEmail = require('../utils/sendEmail')
 
 exports.createOrder = (req, res) => {
     console.log('req.user:', req.user);

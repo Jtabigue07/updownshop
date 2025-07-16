@@ -109,6 +109,7 @@ $(function() {
   function loadReviewsTable() {
     const token = localStorage.getItem('token');
     const table = $('#reviewsTable');
+    // Destroy DataTable if already initialized
     if ($.fn.DataTable.isDataTable(table)) {
       table.DataTable().destroy();
     }

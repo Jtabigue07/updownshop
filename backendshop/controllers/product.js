@@ -57,4 +57,20 @@ exports.getAllCategories = (req, res) => {
     if (err) return res.status(500).json({ error: err });
     res.json(results);
   });
+};
+
+// Search products by name and category
+exports.searchProducts = (req, res) => {
+  const q = req.query.q || '';
+  const category = req.query.category || '';
+  let sql = `SELECT p.*, c.name AS category FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.name LIKE ?`;
+  let params = [`%${q}%`];
+  if (category) {
+    sql += ' AND c.id = ?';
+    params.push(category);
+  }
+  connection.execute(sql, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(results);
+  });
 }; 
