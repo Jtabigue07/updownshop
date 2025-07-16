@@ -4,11 +4,12 @@ const { isAuthenticatedUser } = require('../middlewares/auth');
 const { isAdmin } = require('../middlewares/role');
 const upload = require('../utils/multer');
 const {
-  getAllProducts, getProduct, createProduct, updateProduct, deleteProduct, getAllCategories
+  getAllProducts, getProduct, createProduct, updateProduct, deleteProduct, getAllCategories, searchProducts
 } = require('../controllers/product');
 
 // Public
 router.get('/products', getAllProducts);
+router.get('/products/search', searchProducts);
 router.get('/products/:id', getProduct);
 router.get('/categories', getAllCategories);
 

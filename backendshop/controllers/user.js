@@ -11,12 +11,12 @@ const registerUser = async (req, res) => {
     const { name, password, email, role } = req.body;
     const userRole = role && (role === 'admin') ? 'admin' : 'user';
     const hashedPassword = await bcrypt.hash(password, 10);
+    
     const userSql = 'INSERT INTO users (name, password, email, role) VALUES (?, ?, ?, ?)';
     try {
         connection.execute(userSql, [name, hashedPassword, email, userRole], (err, result) => {
             if (err instanceof Error) {
                 console.log(err);
-
                 return res.status(401).json({
                     error: err
                 });
@@ -24,13 +24,16 @@ const registerUser = async (req, res) => {
 
             return res.status(200).json({
                 success: true,
+                message: 'Registration successful! You can now log in.',
                 result
-            })
+            });
         });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        return res.status(500).json({
+            error: 'Registration failed'
+        });
     }
-
 };
 
 const loginUser = async (req, res) => {

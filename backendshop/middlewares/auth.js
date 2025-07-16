@@ -16,3 +16,6 @@ exports.isAuthenticatedUser = (req, res, next) => {
   }
 };
 
+// Alias for the same function
+exports.authenticateToken = exports.isAuthenticatedUser;
+
